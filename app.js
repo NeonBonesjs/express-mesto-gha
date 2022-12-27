@@ -22,7 +22,9 @@ app.use((req, res, next) => {
 
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
-
+app.use('*', (req, res) => {
+  res.status(404).send({ message: 'Указан некорректный путь' });
+});
 app.listen(PORT, () => {
   // Если всё работает, консоль покажет, какой порт приложение слушает
   // console.log(`App listening on port ${PORT}`);

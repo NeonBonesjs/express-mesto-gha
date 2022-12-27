@@ -18,7 +18,8 @@ module.exports.getUserById = (req, res) => {
       name, about, avatar, _id,
     }))
     .catch((err) => {
-      if (err.name === 'CastError') { return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' }); }
+      if (err.name === 'CastError') { return res.status(400).send({ message: 'Некорректный айди.' }); }
+      if (err.name === 'TypeError') { return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' }); }
       return res.status(500).send({ message: err.message });
     });
 };

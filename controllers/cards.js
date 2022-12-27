@@ -24,8 +24,13 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then(() => res.send({ message: 'пост удален' }))
-    .catch((err) => { if (err.name === 'CastError') { return res.status(404).send({ message: 'Карточка с указанным _id не найдена.' }); } return res.status(500).send({ message: err.message }); });
+    .orFail(new Error('NotFound'))
+    .then(() => res.send({ message: 'Карточка удалена' }))
+    .catch((err) => {
+      if (err.message === 'NotFound') { return res.status(404).send({ message: 'Карточка с указанным _id не найдена.' }); }
+      if (err.name === 'CastError') { return res.status(400).send({ message: 'Некорректный айди.' }); }
+      return res.status(500).send({ message: err.message });
+    });
 };
 
 module.exports.likeCard = (req, res) => {
@@ -36,7 +41,8 @@ module.exports.likeCard = (req, res) => {
       likes, _id, name, link, owner, createdAt,
     }))
     .catch((err) => {
-      if (err.name === 'CastError') { return res.status(404).send({ message: 'Запрашиваемая карточка не найден' }); } if (err.name === 'ValidationError') { return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' }); }
+      if (err.name === 'CastError') { return res.status(400).send({ message: 'Некорректный айди.' }); }
+      if (err.name === 'TypeError') { return res.status(404).send({ message: 'Запрашиваемая карточка не найден' }); } if (err.name === 'ValidationError') { return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' }); }
       return res.status(500).send({ message: err.message });
     });
 };
@@ -49,7 +55,8 @@ module.exports.dislikeCard = (req, res) => {
       likes, _id, name, link, owner, createdAt,
     }))
     .catch((err) => {
-      if (err.name === 'CastError') { return res.status(404).send({ message: 'Запрашиваемая карточка не найден' }); } if (err.name === 'ValidationError') { return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' }); }
+      if (err.name === 'CastError') { return res.status(400).send({ message: 'Некорректный айди.' }); }
+      if (err.name === 'TypeError') { return res.status(404).send({ message: 'Запрашиваемая карточка не найден' }); } if (err.name === 'ValidationError') { return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' }); }
       return res.status(500).send({ message: err.message });
     });
 };
