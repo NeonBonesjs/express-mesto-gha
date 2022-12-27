@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
+const { NOT_FOUND_CODE } = require('./error/errors');
 
 const { PORT = 3000 } = process.env;
 
@@ -23,7 +24,7 @@ app.use((req, res, next) => {
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
 app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Указан некорректный путь' });
+  res.status(NOT_FOUND_CODE).send({ message: 'Указан некорректный путь' });
 });
 app.listen(PORT, () => {
   // Если всё работает, консоль покажет, какой порт приложение слушает

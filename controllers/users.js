@@ -1,10 +1,11 @@
 /* eslint-disable no-shadow */
 const User = require('../models/users');
+const { NOT_FOUND_CODE, NOT_VALID_CODE, DEFAULT_ERROR_CODE } = require('../error/errors');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ users }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'На сервере произошла ошибка' }));
 };
 
 module.exports.getUserById = (req, res) => {
@@ -18,9 +19,9 @@ module.exports.getUserById = (req, res) => {
       name, about, avatar, _id,
     }))
     .catch((err) => {
-      if (err.name === 'CastError') { return res.status(400).send({ message: 'Некорректный айди.' }); }
-      if (err.name === 'TypeError') { return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' }); }
-      return res.status(500).send({ message: err.message });
+      if (err.name === 'CastError') { return res.status(NOT_VALID_CODE).send({ message: 'Некорректный айди.' }); }
+      if (err.name === 'TypeError') { return res.status(NOT_FOUND_CODE).send({ message: 'Пользователь по указанному _id не найден.' }); }
+      return res.status(DEFAULT_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -33,8 +34,8 @@ module.exports.createUser = (req, res) => {
       name, about, avatar, _id,
     }))
     .catch((err) => {
-      if (err.name === 'ValidationError') { return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' }); }
-      return res.status(500).send({ message: err.message });
+      if (err.name === 'ValidationError') { return res.status(NOT_VALID_CODE).send({ message: 'Переданы некорректные данные при создании пользователя' }); }
+      return res.status(DEFAULT_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -47,9 +48,9 @@ module.exports.changeUserInfo = (req, res) => {
       name, about, avatar, _id,
     }))
     .catch((err) => {
-      if (err.name === 'ValidationError') { return res.status(400).send({ message: 'Переданы некорректные данные, или ошибка валидации' }); }
-      if (err.name === 'CastError') { return res.status(404).send({ message: 'Пользователь с указанным _id не найден.' }); }
-      return res.status(500).send({ message: err.message });
+      if (err.name === 'ValidationError') { return res.status(NOT_VALID_CODE).send({ message: 'Переданы некорректные данные, или ошибка валидации' }); }
+      if (err.name === 'CastError') { return res.status(NOT_FOUND_CODE).send({ message: 'Пользователь с указанным _id не найден.' }); }
+      return res.status(DEFAULT_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -62,8 +63,8 @@ module.exports.changeUserAvatar = (req, res) => {
       name, about, avatar, _id,
     }))
     .catch((err) => {
-      if (err.name === 'ValidationError') { return res.status(400).send({ message: 'Переданы некорректные данные, или ошибка валидации' }); }
-      if (err.name === 'CastError') { return res.status(404).send({ message: 'Пользователь с указанным _id не найден.' }); }
-      return res.status(500).send({ message: err.message });
+      if (err.name === 'ValidationError') { return res.status(NOT_VALID_CODE).send({ message: 'Переданы некорректные данные, или ошибка валидации' }); }
+      if (err.name === 'CastError') { return res.status(NOT_FOUND_CODE).send({ message: 'Пользователь с указанным _id не найден.' }); }
+      return res.status(DEFAULT_ERROR_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
