@@ -27,6 +27,7 @@ module.exports.getUserById = (req, res, next) => {
         about: user.about,
         avatar: user.avatar,
         _id: user._id,
+        email: user.email,
       });
     })
     .catch(next);
@@ -116,13 +117,12 @@ module.exports.login = (req, res, next) => {
 module.exports.getThisUserInfo = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(new NotFoundError('Пользователь по указанному _id не найден.'))
-    .then(({
-      name,
-      about,
-      avatar,
-      _id,
-    }) => res.send({
-      name, about, avatar, _id,
+    .then((user) => res.send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      _id: user._id,
+      email: user.email,
     }))
     .catch(next);
 };
