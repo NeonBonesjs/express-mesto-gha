@@ -3,8 +3,9 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/users');
-const { NotFoundError, ValidationError, CustomError } = require('../error/errors');
-// const { NOT_FOUND_CODE, NOT_VALID_CODE, DEFAULT_ERROR_CODE } = require('../error/errors');
+const NotFoundError = require('../error/NotFoundError');
+const ValidationError = require('../error/ValidationError');
+const CustomError = require('../error/CustomError');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -13,12 +14,7 @@ module.exports.getUsers = (req, res, next) => {
 };
 
 module.exports.getUserById = (req, res, next) => {
-  if (req.params.userId.length !== 24) {
-    throw new ValidationError('Переданы некорректные данные');
-  }
-
   User.findById(req.params.userId)
-    // .orFail(new Error('NotFound'))
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Пользователь по указанному _id не найден.');
@@ -57,12 +53,12 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError(`${Object.values(err.errors).map((error) => error.message).join(', ')}`));
+        return next(new ValidationError(`${Object.values(err.errors).map((error) => error.message).join(', ')}`));
       }
       if (err.name === 'MongoServerError' && err.code === 11000) {
-        next(new CustomError('Пользователь с таким email уже существует', 409));
+        return next(new CustomError('Пользователь с таким email уже существует', 409));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -82,9 +78,9 @@ module.exports.changeUserInfo = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError(`${Object.values(err.errors).map((error) => error.message).join(', ')}`));
+        return next(new ValidationError(`${Object.values(err.errors).map((error) => error.message).join(', ')}`));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -99,9 +95,9 @@ module.exports.changeUserAvatar = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError(`${Object.values(err.errors).map((error) => error.message).join(', ')}`));
+        return next(new ValidationError(`${Object.values(err.errors).map((error) => error.message).join(', ')}`));
       }
-      next(err);
+      return next(err);
     });
 };
 

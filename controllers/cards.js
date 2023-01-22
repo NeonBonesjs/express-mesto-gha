@@ -1,5 +1,7 @@
 const Card = require('../models/cards');
-const { ValidationError, NotFoundError, CustomError } = require('../error/errors');
+const NotFoundError = require('../error/NotFoundError');
+const ValidationError = require('../error/ValidationError');
+const CustomError = require('../error/CustomError');
 
 module.exports.getCard = (req, res, next) => {
   Card.find({})
@@ -21,27 +23,21 @@ module.exports.createCard = (req, res, next) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError(`${Object.values(err.errors).map((error) => error.message).join(', ')}`));
       }
-      next(err);
+      return next(err);
     });
 };
 
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .orFail(new NotFoundError('Карточка с указанным _id не найдена.'))
-    // eslint-disable-next-line consistent-return
     .then((card) => {
       if (String(card.owner) !== req.user._id) {
         throw new CustomError('Недостаточно прав', 403);
       }
-      card.remove();
-      res.send({ message: 'Карточка удалена' });
+      return card.remove()
+        .then(() => res.send({ message: 'Карточка удалена' }));
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new ValidationError('Некорректный _id карточки'));
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 module.exports.likeCard = (req, res, next) => {
@@ -52,12 +48,7 @@ module.exports.likeCard = (req, res, next) => {
     }) => res.send({
       likes, _id, name, link, owner, createdAt,
     }))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new ValidationError('Некорректный _id карточки'));
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 module.exports.dislikeCard = (req, res, next) => {
@@ -68,10 +59,5 @@ module.exports.dislikeCard = (req, res, next) => {
     }) => res.send({
       likes, _id, name, link, owner, createdAt,
     }))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new ValidationError('Некорректный _id карточки'));
-      }
-      next(err);
-    });
+    .catch(next);
 };
